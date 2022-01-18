@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:whatsapp/Home.dart';
+import 'package:whatsapp/model/Usuario.dart';
 
 class Cadastro extends StatefulWidget {
   @override
@@ -6,12 +9,14 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
-  TextEditingController _controllerNome = TextEditingController();
-  TextEditingController _controllerEmail = TextEditingController();
-  TextEditingController _controllerSenha = TextEditingController();
+  TextEditingController _controllerNome = TextEditingController(text: "Echo");
+  TextEditingController _controllerEmail =
+      TextEditingController(text: "echo@gmail.com");
+  TextEditingController _controllerSenha =
+      TextEditingController(text: "123456");
   String _mensagemErro = "";
 
-  validarCampos() {
+  _validarCampos() {
     String nome = _controllerNome.text;
     String email = _controllerEmail.text;
     String senha = _controllerSenha.text;
@@ -22,6 +27,12 @@ class _CadastroState extends State<Cadastro> {
           setState(() {
             _mensagemErro = "";
           });
+          Usuario usuario = Usuario();
+
+          usuario.nome = nome;
+          usuario.email = email;
+          usuario.senha = senha;
+          _cadastrarUsuario(usuario);
         } else {
           setState(() {
             _mensagemErro = "Digite uma senha com no mínimo 6 caracteres";
@@ -37,6 +48,28 @@ class _CadastroState extends State<Cadastro> {
         _mensagemErro = "Preencha o Nome";
       });
     }
+  }
+
+  _cadastrarUsuario(Usuario usuario) {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    auth
+        .createUserWithEmailAndPassword(
+      email: usuario.email,
+      password: usuario.senha,
+    )
+        .then((FirebaseUser) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    }).catchError((error) {
+      setState(() {
+        _mensagemErro =
+            "Erro ao cadastrar usuário. Verifique os campos e tente novamente.";
+      });
+    });
   }
 
   @override
@@ -127,7 +160,7 @@ class _CadastroState extends State<Cadastro> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32)),
                     onPressed: () {
-                      validarCampos();
+                      _validarCampos();
                     },
                   ),
                 ),
