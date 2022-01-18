@@ -1,13 +1,16 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:whatsapp/telas/AbaContatos.dart';
+import 'package:whatsapp/telas/AbaConversas.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   String _emailUsuario = "";
 
   Future _recuperarDadosUsuario() async {
@@ -20,8 +23,13 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    _recuperarDadosUsuario();
     super.initState();
+    _recuperarDadosUsuario();
+
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+    );
   }
 
   @override
@@ -30,9 +38,29 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text("WhatsApp"),
         backgroundColor: Color(0xff075E54),
+        bottom: TabBar(
+          labelStyle: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          tabs: [
+            Tab(
+              text: "Conversas",
+            ),
+            Tab(
+              text: "Contatos",
+            )
+          ],
+        ),
       ),
-      body: Container(
-        child: Text(_emailUsuario),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          AbaConversas(),
+          AbaContatos(),
+        ],
       ),
     );
   }
