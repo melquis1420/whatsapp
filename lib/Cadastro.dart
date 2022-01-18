@@ -9,13 +9,13 @@ class Cadastro extends StatefulWidget {
 }
 
 class _CadastroState extends State<Cadastro> {
-  TextEditingController _controllerNome = TextEditingController(text: "Echo");
-  TextEditingController _controllerEmail =
-      TextEditingController(text: "echo@gmail.com");
-  TextEditingController _controllerSenha =
-      TextEditingController(text: "123456");
+  //Controllers
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
   String _mensagemErro = "";
 
+//Validate field
   _validarCampos() {
     String nome = _controllerNome.text;
     String email = _controllerEmail.text;
@@ -62,7 +62,7 @@ class _CadastroState extends State<Cadastro> {
         .then((FirebaseUser) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => Home()),
+        MaterialPageRoute(builder: (context) => Home()), //go to home page
       );
     }).catchError((error) {
       setState(() {
@@ -98,8 +98,8 @@ class _CadastroState extends State<Cadastro> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: TextField(
-                    controller: _controllerNome,
-                    autofocus: true,
+                    controller: _controllerNome, //name controller
+                    autofocus: true, //set autofocus in name field
                     keyboardType: TextInputType.text,
                     style: TextStyle(fontSize: 20),
                     decoration: InputDecoration(
@@ -116,7 +116,7 @@ class _CadastroState extends State<Cadastro> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: TextField(
-                    controller: _controllerEmail,
+                    controller: _controllerEmail, //email controller
                     keyboardType: TextInputType.emailAddress,
                     style: TextStyle(fontSize: 20),
                     decoration: InputDecoration(
@@ -131,7 +131,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                 ),
                 TextField(
-                  controller: _controllerSenha,
+                  controller: _controllerSenha, //password controller
                   obscureText: true,
                   keyboardType: TextInputType.text,
                   style: TextStyle(fontSize: 20),
