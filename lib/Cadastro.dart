@@ -61,16 +61,16 @@ class _CadastroState extends State<Cadastro> {
       password: usuario.senha,
     )
         .then((FirebaseUser) {
-      //Salvar dados do usuário
+      //save user data
 
       Firestore db = Firestore.instance;
 
       db
           .collection("usuarios")
-          .document(FirebaseUser.uid)
-          .setData(usuario.toMap());
+          .document(FirebaseUser.uid) //take the unic userId
+          .setData({});
 
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Home()), //go to home page
       );
