@@ -68,12 +68,9 @@ class _CadastroState extends State<Cadastro> {
       db
           .collection("usuarios")
           .document(FirebaseUser.uid) //take the unic userId
-          .setData({});
+          .setData(usuario.toMap());
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Home()), //go to home page
-      );
+      Navigator.pushNamedAndRemoveUntil(context, "/home", (_) => false);
     }).catchError((error) {
       setState(() {
         _mensagemErro =

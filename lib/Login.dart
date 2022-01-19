@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whatsapp/Cadastro.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'RouteGenerator.dart';
 import 'Home.dart';
 import 'model/Usuario.dart';
 
@@ -34,7 +34,7 @@ class _LoginState extends State<Login> {
         _logarUsuario(usuario);
       } else {
         setState(() {
-          _mensagemErro = "Digite a senha ";
+          _mensagemErro = "Preencha a senha ";
         });
       }
     } else {
@@ -52,10 +52,7 @@ class _LoginState extends State<Login> {
         .signInWithEmailAndPassword(
             email: usuario.email, password: usuario.senha)
         .then((FirebaseUser) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
+      Navigator.pushReplacementNamed(context, "/home");
     }).catchError((error) {
       setState(() {
         _mensagemErro =
@@ -71,12 +68,7 @@ class _LoginState extends State<Login> {
 
     FirebaseUser usuarioLogado = await auth.currentUser();
     if (usuarioLogado != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Home(),
-        ),
-      );
+      Navigator.pushReplacementNamed(context, "/home");
     }
   }
 
