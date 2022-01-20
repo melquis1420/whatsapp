@@ -98,6 +98,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_plugin_android_lifecycle",
+      "rootUri": "file:///C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.1"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///C:/src/flutter/packages/flutter_test",
       "packageUri": "lib/",
@@ -108,6 +114,12 @@
       "rootUri": "file:///C:/src/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "image_picker",
+      "rootUri": "file:///C:/src/flutter/.pub-cache/hosted/pub.dartlang.org/image_picker-0.6.5+3",
+      "packageUri": "lib/",
+      "languageVersion": "2.0"
     },
     {
       "name": "js",
@@ -206,7 +218,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-01-19T00:11:15.433145Z",
+  "generated": "2022-01-20T16:33:38.993090Z",
   "generator": "pub",
   "generatorVersion": "2.15.1"
 }

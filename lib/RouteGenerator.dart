@@ -3,6 +3,8 @@ import 'package:whatsapp/Cadastro.dart';
 import 'package:whatsapp/Home.dart';
 import 'package:whatsapp/Login.dart';
 
+import 'Configuracoes.dart';
+
 class RouteGenerator {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -14,6 +16,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => Cadastro());
       case "/home":
         return MaterialPageRoute(builder: (_) => Home());
+      case "/configuracoes":
+        return MaterialPageRoute(builder: (_) => Configuracoes());
       default:
         _erroRota();
     }
