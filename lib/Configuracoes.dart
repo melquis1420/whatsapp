@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
 
 class Configuracoes extends StatefulWidget {
@@ -12,6 +14,9 @@ class Configuracoes extends StatefulWidget {
 class _ConfiguracoesState extends State<Configuracoes> {
   TextEditingController _controllerNome = TextEditingController();
   File? _imagem;
+  late String _idUsuarioLogado;
+  bool _subindoImagem = false;
+  String _urlImagemRecuperada = "";
 
   Future _recuperarImagem(String origemImagem) async {
     File? imagemSelecionada;
@@ -29,7 +34,59 @@ class _ConfiguracoesState extends State<Configuracoes> {
 
     setState(() {
       _imagem = imagemSelecionada;
+      if (_imagem != null) {
+        _subindoImagem = true;
+        _uploadImagem();
+      }
     });
+  }
+
+  Future _uploadImagem() async {
+    FirebaseStorage storage = FirebaseStorage.instance;
+    StorageReference pastaRaiz = storage.ref();
+    StorageReference arquivo =
+        pastaRaiz.child("perfil").child(_idUsuarioLogado + ".jpg");
+
+    //Image Upload
+    StorageUploadTask task = arquivo.putFile(_imagem);
+
+    //Upload controll progress
+
+    task.events.listen((StorageTaskEvent storageEvent) {
+      if (storageEvent.type == StorageTaskEventType.progress) {
+        setState(() {
+          _subindoImagem = true;
+        });
+      } else if (storageEvent.type == StorageTaskEventType.success) {
+        setState(() {
+          _subindoImagem = false;
+        });
+      }
+    });
+
+    //Image url recover
+    task.onComplete.then((StorageTaskSnapshot snapshot) {
+      _recuperarUrlImagem(snapshot);
+    });
+  }
+
+  Future _recuperarUrlImagem(StorageTaskSnapshot snapshot) async {
+    String url = await snapshot.ref.getDownloadURL();
+    setState(() {
+      _urlImagemRecuperada = url;
+    });
+  }
+
+  _recuperarDadosUsuario() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseUser usuarioLogado = await auth.currentUser();
+    _idUsuarioLogado = usuarioLogado.uid;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recuperarDadosUsuario();
   }
 
   @override
@@ -46,13 +103,15 @@ class _ConfiguracoesState extends State<Configuracoes> {
             child: Column(
               children: [
                 //Loading
+                _subindoImagem ? CircularProgressIndicator() : Container(),
 
                 CircleAvatar(
-                  radius: 100,
-                  backgroundColor: Colors.grey,
-                  backgroundImage: NetworkImage(
-                      "https://firebasestorage.googleapis.com/v0/b/whatsapp-1f66d.appspot.com/o/perfil%2Fperfil5.jpg?alt=media&token=2b09fcf1-5f41-4573-9023-3f2bbb39f1f8"),
-                ),
+                    radius: 100,
+                    backgroundColor: Colors.grey,
+                    //recover image
+                    backgroundImage: _urlImagemRecuperada != null
+                        ? NetworkImage(_urlImagemRecuperada)
+                        : null),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
