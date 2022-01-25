@@ -12,9 +12,9 @@ class AbaContatos extends StatefulWidget {
 }
 
 class _AbaContatosState extends State<AbaContatos> {
-
   String _idUsuarioLogado = "";
   String _emailUsuarioLogado = "";
+
   Future<List<Usuario>> _recuperarContatos() async {
     Firestore db = Firestore.instance;
 
@@ -25,7 +25,7 @@ class _AbaContatosState extends State<AbaContatos> {
     for (DocumentSnapshot item in querySnapshot.documents) {
       var dados = item.data;
 
-      if(dados["email"] == _emailUsuarioLogado) continue;
+      if (dados["email"] == _emailUsuarioLogado) continue;
       //if true, ignore next steps and go back to for.
 
       Usuario usuario = Usuario();
@@ -43,8 +43,7 @@ class _AbaContatosState extends State<AbaContatos> {
     FirebaseAuth auth = FirebaseAuth.instance;
     FirebaseUser usuarioLogado = await auth.currentUser();
     _idUsuarioLogado = usuarioLogado.uid;
-    _emailUsuarioLogado= usuarioLogado.email;
-
+    _emailUsuarioLogado = usuarioLogado.email;
   }
 
   @override
@@ -80,13 +79,20 @@ class _AbaContatosState extends State<AbaContatos> {
                   Usuario usuario = listaItens![indice];
 
                   return ListTile(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        "/mensagens",
+                        arguments: usuario,
+                      );
+                    },
                     contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                     leading: CircleAvatar(
-                      maxRadius: 30,
-                      backgroundColor: Colors.grey,
-                      backgroundImage: usuario.urlImagem !=null
-                      ? NetworkImage(usuario.urlImagem)
-                      :null),
+                        maxRadius: 30,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: usuario.urlImagem != null
+                            ? NetworkImage(usuario.urlImagem)
+                            : null),
                     title: Text(
                       usuario.nome,
                       style: TextStyle(
