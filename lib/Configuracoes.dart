@@ -77,8 +77,8 @@ class _ConfiguracoesState extends State<Configuracoes> {
     });
   }
 
-  _atualizarNomeFirestore(String nome) {
-    //String nome = _controllerNome.text;
+  _atualizarNomeFirestore() {
+    String nome = _controllerNome.text;
     Firestore db = Firestore.instance;
     Map<String, dynamic> dadosAtualizar = {"nome": nome};
     db
@@ -171,9 +171,9 @@ class _ConfiguracoesState extends State<Configuracoes> {
                     autofocus: true, //set autofocus in name field
                     keyboardType: TextInputType.text,
                     style: TextStyle(fontSize: 20),
-                    onChanged: (texto) {
+                    /*onChanged: (texto) {
                       _atualizarNomeFirestore(texto);
-                    },
+                    },*/
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       hintText: "Nome",
@@ -200,7 +200,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(32)),
                     onPressed: () {
-                      //_atualizarNomeFirestore(texto);
+                      _atualizarNomeFirestore();
                     },
                   ),
                 ),
