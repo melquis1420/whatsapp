@@ -6,8 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 
 class Configuracoes extends StatefulWidget {
-  const Configuracoes({Key? key}) : super(key: key);
-
   @override
   _ConfiguracoesState createState() => _ConfiguracoesState();
 }
@@ -73,7 +71,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
 
   Future _recuperarUrlImagem(StorageTaskSnapshot snapshot) async {
     String url = await snapshot.ref.getDownloadURL();
-    _atualizarImagemFirestore(url);
+    _atualizarUrlImagemFirestore(url);
     setState(() {
       _urlImagemRecuperada = url;
     });
@@ -89,7 +87,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
         .updateData(dadosAtualizar);
   }
 
-  _atualizarImagemFirestore(String url) {
+  _atualizarUrlImagemFirestore(String url) {
     Firestore db = Firestore.instance;
     Map<String, dynamic> dadosAtualizar = {"urlImagem": url};
     db
@@ -113,6 +111,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
 
     if (dados["urlImagem"] != null) {
       _urlImagemRecuperada = dados["urlImagem"];
+      setState(() {});
     }
   }
 
@@ -147,9 +146,7 @@ class _ConfiguracoesState extends State<Configuracoes> {
                     radius: 100,
                     backgroundColor: Colors.grey,
                     //recover image
-                    backgroundImage: _urlImagemRecuperada != null
-                        ? NetworkImage(_urlImagemRecuperada)
-                        : null),
+                    backgroundImage: NetworkImage(_urlImagemRecuperada)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
