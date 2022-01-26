@@ -12,6 +12,14 @@ class Mensagens extends StatefulWidget {
 }
 
 class _MensagensState extends State<Mensagens> {
+  List<String> listaMensagens = [
+    "oi",
+    "oioi",
+    "oioioi",
+    "oioioioioi",
+    "oioioioioioi",
+    "oioioioioioioi",
+  ];
   TextEditingController _controllerMensagem = TextEditingController();
 
   _enviarMensagem() {}
@@ -64,6 +72,46 @@ class _MensagensState extends State<Mensagens> {
       ),
     );
 
+    var listView = Expanded(
+      child: ListView.builder(
+          itemCount: listaMensagens.length,
+          itemBuilder: (context, indice) {
+
+            double larguraContainer = MediaQuery.of(context).size.width *0.8;
+            //define colors and alignms
+            Alignment alinhamento = Alignment.centerRight;
+            Color cor = Color(0xff21cb65);
+            Color corTexto = Colors.white;
+
+            if (indice % 2 == 0){
+              cor= Color(0xff095a05);
+              alinhamento = Alignment.centerLeft;
+            }
+
+
+            return Align(
+              alignment: alinhamento,
+              child: Padding(
+                padding: EdgeInsets.all(6),
+                child: Container(
+                  width: larguraContainer,
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: cor,
+                    borderRadius:BorderRadius.all(Radius.circular(16)),
+                  ),
+                  child: Text(listaMensagens[indice],
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: corTexto,
+                  ),
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.contato.nome),
@@ -80,10 +128,8 @@ class _MensagensState extends State<Mensagens> {
               padding: EdgeInsets.all(8),
               child: Column(
                 children: [
-                  Text("listview"),
+                  listView,
                   caixaMensagem,
-                  //listview
-                  //caixa mensagem
                 ],
               ),
             ),
