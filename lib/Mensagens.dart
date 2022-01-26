@@ -17,6 +17,7 @@ class Mensagens extends StatefulWidget {
 class _MensagensState extends State<Mensagens> {
   String _idUsuarioLogado = "";
   String _idUsuarioDestinatario = "";
+  Firestore db = Firestore.instance;
   List<String> listaMensagens = [
     "oi",
     "oioi",
@@ -40,9 +41,8 @@ class _MensagensState extends State<Mensagens> {
     }
   }
 
-  _salvarMensagem(
-      String idRemetente, String idDestinatario, Mensagem msg) async {
-    Firestore db = Firestore.instance;
+  _salvarMensagem(String idRemetente, String idDestinatario,
+      Mensagem msg) async {
     await db
         .collection("mensagens")
         .document(idRemetente)
@@ -115,11 +115,91 @@ class _MensagensState extends State<Mensagens> {
       ),
     );
 
+    var stream = StreamBuilder(
+      stream: db
+          .collection("mensagens")
+          .document(_idUsuarioLogado)
+          .collection(_idUsuarioDestinatario).snapshots(),
+      builder: (context, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+             return Center(
+              child: Column(
+                children: [
+                  Text("Carregando mensagens"),
+                  CircularProgressIndicator(),
+                ],
+              ),
+            );
+            break;
+          case ConnectionState.active:
+          case ConnectionState.done:
+            QuerySnapshot? querySnapshot = snapshot.data as QuerySnapshot?;
+            if (snapshot.hasError) {
+              return Expanded(child: Text("Erro ao carregar os  dados"),);
+            } else {
+              return Expanded(
+                child: ListView.builder(
+                    itemCount: querySnapshot!.documents.length,
+                    itemBuilder: (context, indice) {
+                      double larguraContainer = MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.8;
+
+                      List<DocumentSnapshot> mensagens = querySnapshot.documents.toList();
+                      DocumentSnapshot item = mensagens[indice];
+                      //define colors and alignms
+                      Alignment alinhamento = Alignment.centerRight;
+                      Color cor = Color(0xff21cb65);
+                      Color corTexto = Colors.white;
+
+                      if (_idUsuarioLogado != item["idUsuario"]) {
+                        cor = Color(0xff095a05);
+                        alinhamento = Alignment.centerLeft;
+                      }
+
+                      return Align(
+                        alignment: alinhamento,
+                        child: Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Container(
+                            width: larguraContainer,
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: cor,
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(16)
+                              ),
+                            ),
+                            child: Text(
+                             item["mensagem"],
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: corTexto,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+              );
+            }
+            break;
+        }
+      },
+
+    );
+
     var listView = Expanded(
       child: ListView.builder(
           itemCount: listaMensagens.length,
           itemBuilder: (context, indice) {
-            double larguraContainer = MediaQuery.of(context).size.width * 0.8;
+            double larguraContainer = MediaQuery
+                .of(context)
+                .size
+                .width * 0.8;
             //define colors and alignms
             Alignment alinhamento = Alignment.centerRight;
             Color cor = Color(0xff21cb65);
@@ -173,7 +253,10 @@ class _MensagensState extends State<Mensagens> {
         backgroundColor: Color(0xff075E54),
       ),
       body: Container(
-          width: MediaQuery.of(context).size.width,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
           decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("images/bg.png"), fit: BoxFit.cover),
@@ -183,7 +266,7 @@ class _MensagensState extends State<Mensagens> {
               padding: EdgeInsets.all(8),
               child: Column(
                 children: [
-                  listView,
+                  stream,
                   caixaMensagem,
                 ],
               ),
