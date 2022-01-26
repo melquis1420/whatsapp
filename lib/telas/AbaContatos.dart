@@ -29,6 +29,7 @@ class _AbaContatosState extends State<AbaContatos> {
       //if true, ignore next steps and go back to for.
 
       Usuario usuario = Usuario();
+      usuario.idUsuario = item.documentID;
       usuario.email = dados["email"];
       usuario.nome = dados["nome"];
       usuario.urlImagem = dados["urlImagem"];

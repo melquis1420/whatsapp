@@ -167,8 +167,10 @@ class _ConfiguracoesState extends State<Configuracoes> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 8),
                   child: TextField(
-                    controller: _controllerNome, //name controller
-                    autofocus: true, //set autofocus in name field
+                    controller: _controllerNome,
+                    //name controller
+                    autofocus: true,
+                    //set autofocus in name field
                     keyboardType: TextInputType.text,
                     style: TextStyle(fontSize: 20),
                     /*onChanged: (texto) {
