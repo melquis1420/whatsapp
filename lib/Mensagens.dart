@@ -4,6 +4,9 @@ import 'package:whatsapp/model/Mensagem.dart';
 import 'package:whatsapp/model/Usuario.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 class Mensagens extends StatefulWidget {
   Usuario contato;
@@ -15,17 +18,11 @@ class Mensagens extends StatefulWidget {
 }
 
 class _MensagensState extends State<Mensagens> {
+  File? _imagem;
+  bool _subindoImagem = false;
   String _idUsuarioLogado = "";
   String _idUsuarioDestinatario = "";
   Firestore db = Firestore.instance;
-  List<String> listaMensagens = [
-    "oi",
-    "oioi",
-    "oioioi",
-    "oioioioioi",
-    "oioioioioioi",
-    "oioioioioioioi",
-  ];
   TextEditingController _controllerMensagem = TextEditingController();
 
   _enviarMensagem() {
@@ -44,8 +41,8 @@ class _MensagensState extends State<Mensagens> {
     }
   }
 
-  _salvarMensagem(String idRemetente, String idDestinatario,
-      Mensagem msg) async {
+  _salvarMensagem(
+      String idRemetente, String idDestinatario, Mensagem msg) async {
     await db
         .collection("mensagens")
         .document(idRemetente)
@@ -56,7 +53,57 @@ class _MensagensState extends State<Mensagens> {
     _controllerMensagem.clear();
   }
 
-  _enviarFoto() {}
+  _enviarFoto() async {
+    File? imagemSelecionada;
+    imagemSelecionada =
+        await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    _subindoImagem = true;
+    String nomeImagem = DateTime.now().millisecondsSinceEpoch.toString();
+    FirebaseStorage storage = FirebaseStorage.instance;
+    StorageReference pastaRaiz = storage.ref();
+    StorageReference arquivo = pastaRaiz
+        .child("mensagens")
+        .child(_idUsuarioLogado)
+        .child(nomeImagem + ".jpg");
+
+    //Image Upload
+    StorageUploadTask task = arquivo.putFile(imagemSelecionada);
+
+    //Upload controll progress
+
+    task.events.listen((StorageTaskEvent storageEvent) {
+      if (storageEvent.type == StorageTaskEventType.progress) {
+        setState(() {
+          _subindoImagem = true;
+        });
+      } else if (storageEvent.type == StorageTaskEventType.success) {
+        setState(() {
+          _subindoImagem = false;
+        });
+      }
+    });
+
+    //Image url recover
+    task.onComplete.then((StorageTaskSnapshot snapshot) {
+      _recuperarUrlImagem(snapshot);
+    });
+  }
+
+  Future _recuperarUrlImagem(StorageTaskSnapshot snapshot) async {
+    String url = await snapshot.ref.getDownloadURL();
+
+    Mensagem mensagem = Mensagem();
+    mensagem.idUsuario = _idUsuarioLogado;
+    mensagem.mensagem = "";
+    mensagem.urlImagem = url;
+    mensagem.tipo = "imagem";
+
+    _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
+
+    //save message to other contact
+    _salvarMensagem(_idUsuarioDestinatario, _idUsuarioLogado, mensagem);
+  }
 
   _recuperarDadosUsuario() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -96,11 +143,13 @@ class _MensagensState extends State<Mensagens> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(32),
                   ),
-                  prefixIcon: IconButton(
-                    icon: Icon(Icons.camera_alt),
-                    onPressed: _enviarFoto,
-                    color: Color(0xff075E54),
-                  ),
+                  prefixIcon: _subindoImagem
+                      ? CircularProgressIndicator()
+                      : IconButton(
+                          icon: Icon(Icons.camera_alt),
+                          onPressed: _enviarFoto,
+                          color: Color(0xff075E54),
+                        ),
                 ),
               ),
             ),
@@ -122,12 +171,13 @@ class _MensagensState extends State<Mensagens> {
       stream: db
           .collection("mensagens")
           .document(_idUsuarioLogado)
-          .collection(_idUsuarioDestinatario).snapshots(),
+          .collection(_idUsuarioDestinatario)
+          .snapshots(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
           case ConnectionState.waiting:
-             return Center(
+            return Center(
               child: Column(
                 children: [
                   Text("Carregando mensagens"),
@@ -140,18 +190,19 @@ class _MensagensState extends State<Mensagens> {
           case ConnectionState.done:
             QuerySnapshot? querySnapshot = snapshot.data as QuerySnapshot?;
             if (snapshot.hasError) {
-              return Expanded(child: Text("Erro ao carregar os  dados"),);
+              return Expanded(
+                child: Text("Erro ao carregar os  dados"),
+              );
             } else {
               return Expanded(
                 child: ListView.builder(
                     itemCount: querySnapshot!.documents.length,
                     itemBuilder: (context, indice) {
-                      double larguraContainer = MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.8;
+                      double larguraContainer =
+                          MediaQuery.of(context).size.width * 0.8;
 
-                      List<DocumentSnapshot> mensagens = querySnapshot.documents.toList();
+                      List<DocumentSnapshot> mensagens =
+                          querySnapshot.documents.toList();
                       DocumentSnapshot item = mensagens[indice];
                       //define colors and alignms
                       Alignment alinhamento = Alignment.centerRight;
@@ -172,17 +223,16 @@ class _MensagensState extends State<Mensagens> {
                             padding: EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: cor,
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(16)
-                              ),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(16)),
                             ),
-                            child: Text(
-                             item["mensagem"],
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: corTexto,
-                              ),
-                            ),
+                            child: item["tipo"] == "texto"
+                                ? Text(
+                                    item["mensagem"],
+                                    style: TextStyle(
+                                        fontSize: 15, color: corTexto),
+                                  )
+                                : Image.network(item["urlImagem"]),
                           ),
                         ),
                       );
@@ -192,49 +242,6 @@ class _MensagensState extends State<Mensagens> {
             break;
         }
       },
-
-    );
-
-    var listView = Expanded(
-      child: ListView.builder(
-          itemCount: listaMensagens.length,
-          itemBuilder: (context, indice) {
-            double larguraContainer = MediaQuery
-                .of(context)
-                .size
-                .width * 0.8;
-            //define colors and alignms
-            Alignment alinhamento = Alignment.centerRight;
-            Color cor = Color(0xff21cb65);
-            Color corTexto = Colors.white;
-
-            if (indice % 2 == 0) {
-              cor = Color(0xff095a05);
-              alinhamento = Alignment.centerLeft;
-            }
-
-            return Align(
-              alignment: alinhamento,
-              child: Padding(
-                padding: EdgeInsets.all(6),
-                child: Container(
-                  width: larguraContainer,
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: cor,
-                    borderRadius: BorderRadius.all(Radius.circular(16)),
-                  ),
-                  child: Text(
-                    listaMensagens[indice],
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: corTexto,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
     );
 
     return Scaffold(
@@ -256,10 +263,7 @@ class _MensagensState extends State<Mensagens> {
         backgroundColor: Color(0xff075E54),
       ),
       body: Container(
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage("images/bg.png"), fit: BoxFit.cover),
