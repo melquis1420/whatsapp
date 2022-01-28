@@ -221,9 +221,7 @@ class _MensagensState extends State<Mensagens> {
           case ConnectionState.done:
             QuerySnapshot? querySnapshot = snapshot.data as QuerySnapshot?;
             if (snapshot.hasError) {
-              return Expanded(
-                child: Text("Erro ao carregar os  dados"),
-              );
+              return Text("Erro ao carregar os  dados");
             } else {
               return Expanded(
                 child: ListView.builder(
@@ -231,7 +229,7 @@ class _MensagensState extends State<Mensagens> {
                     itemBuilder: (context, indice) {
                       double larguraContainer =
                           MediaQuery.of(context).size.width * 0.8;
-
+                      //messages recover
                       List<DocumentSnapshot> mensagens =
                           querySnapshot.documents.toList();
                       DocumentSnapshot item = mensagens[indice];
