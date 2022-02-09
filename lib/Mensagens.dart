@@ -44,12 +44,10 @@ class _MensagensState extends State<Mensagens> {
 
       //save chat
       _salvarConversa(mensagem);
-
     }
   }
 
-  _salvarConversa(Mensagem msg){
-
+  _salvarConversa(Mensagem msg) {
     Conversa cRemetente = Conversa();
     cRemetente.idRemetente = _idUsuarioLogado;
     cRemetente.idDestinatario = _idUsuarioDestinatario;
@@ -59,8 +57,6 @@ class _MensagensState extends State<Mensagens> {
     cRemetente.tipoMensagem = msg.tipo;
     cRemetente.salvar();
 
-
-
     Conversa cDestinatario = Conversa();
     cDestinatario.idRemetente = _idUsuarioDestinatario;
     cDestinatario.idDestinatario = _idUsuarioLogado;
@@ -69,7 +65,6 @@ class _MensagensState extends State<Mensagens> {
     cDestinatario.caminhoFoto = widget.contato.urlImagem;
     cDestinatario.tipoMensagem = msg.tipo;
     cDestinatario.salvar();
-
   }
 
   _salvarMensagem(
@@ -185,15 +180,20 @@ class _MensagensState extends State<Mensagens> {
               ),
             ),
           ),
-          FloatingActionButton(
-            backgroundColor: Color(0xff075E54),
-            child: Icon(
-              Icons.send,
-              color: Colors.white,
-            ),
-            mini: true,
-            onPressed: _enviarMensagem,
-          ),
+          Platform.isIOS
+              ? CupertinoButton(
+                  child: Text("Enviar"),
+                  onPressed: _enviarMensagem,
+                )
+              : FloatingActionButton(
+                  backgroundColor: Color(0xff075E54),
+                  child: Icon(
+                    Icons.send,
+                    color: Colors.white,
+                  ),
+                  mini: true,
+                  onPressed: _enviarMensagem,
+                )
         ],
       ),
     );
