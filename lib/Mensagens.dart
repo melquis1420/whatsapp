@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -27,6 +29,8 @@ class _MensagensState extends State<Mensagens> {
   String _idUsuarioDestinatario = "";
   Firestore db = Firestore.instance;
   TextEditingController _controllerMensagem = TextEditingController();
+  final _controller = StreamController<QuerySnapshot>.broadcast();
+  ScrollController _scrollController = ScrollController();
 
   _enviarMensagem() {
     String textoMensagem = _controllerMensagem.text;
@@ -137,6 +141,22 @@ class _MensagensState extends State<Mensagens> {
     _idUsuarioLogado = usuarioLogado.uid;
 
     _idUsuarioDestinatario = widget.contato.idUsuario;
+    _adicionarListenerMensagens();
+  }
+
+  Stream<QuerySnapshot>? _adicionarListenerMensagens() {
+    final stream = db
+        .collection("mensagens")
+        .document(_idUsuarioLogado)
+        .collection(_idUsuarioDestinatario)
+        .snapshots();
+
+    stream.listen((dados) {
+      _controller.add(dados);
+      Timer(Duration(seconds: 1),(){
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      });
+    });
   }
 
   @override
@@ -199,11 +219,7 @@ class _MensagensState extends State<Mensagens> {
     );
 
     var stream = StreamBuilder(
-      stream: db
-          .collection("mensagens")
-          .document(_idUsuarioLogado)
-          .collection(_idUsuarioDestinatario)
-          .snapshots(),
+      stream: _controller.stream,
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
@@ -225,6 +241,7 @@ class _MensagensState extends State<Mensagens> {
             } else {
               return Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
                     itemCount: querySnapshot!.documents.length,
                     itemBuilder: (context, indice) {
                       double larguraContainer =
