@@ -39,6 +39,7 @@ class _MensagensState extends State<Mensagens> {
       mensagem.idUsuario = _idUsuarioLogado;
       mensagem.mensagem = textoMensagem;
       mensagem.urlImagem = "";
+      mensagem.data = Timestamp.now().toString(); //take data to message
       mensagem.tipo = "texto";
 
       _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
@@ -127,6 +128,7 @@ class _MensagensState extends State<Mensagens> {
     mensagem.idUsuario = _idUsuarioLogado;
     mensagem.mensagem = "";
     mensagem.urlImagem = url;
+    mensagem.data = Timestamp.now().toString();
     mensagem.tipo = "imagem";
 
     _salvarMensagem(_idUsuarioLogado, _idUsuarioDestinatario, mensagem);
@@ -149,6 +151,7 @@ class _MensagensState extends State<Mensagens> {
         .collection("mensagens")
         .document(_idUsuarioLogado)
         .collection(_idUsuarioDestinatario)
+        .orderBy("data", descending: false)
         .snapshots();
 
     stream.listen((dados) {

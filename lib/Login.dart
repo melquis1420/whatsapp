@@ -12,9 +12,9 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   TextEditingController _controllerEmail =
-      TextEditingController(text: "melqui@gmail.com");
+      TextEditingController(text: "");
   TextEditingController _controllerSenha =
-      TextEditingController(text: "123456");
+      TextEditingController(text: "");
   String _mensagemErro = "";
 
 //fields validations

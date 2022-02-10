@@ -41,7 +41,9 @@ class _AbaConversasState extends State<AbaConversas> {
 
     stream.listen((dados) {
       _controller.add(dados);
+
     });
+
   }
 
   _recuperarDadosUsuario() async {
@@ -52,12 +54,14 @@ class _AbaConversasState extends State<AbaConversas> {
     _adicionarListenerConversas();
   }
 
+
 //Close the stream
   @override
   void dispose() {
     super.dispose();
     _controller.close();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +85,7 @@ class _AbaConversasState extends State<AbaConversas> {
             if (snapshot.hasError) {
               return Text("Erro ao carregar os  dados");
             } else
-              querySnapshot = snapshot.data!;
+             querySnapshot= snapshot.data!;
             if (querySnapshot.documents.length == 0) {
               return Center(
                 child: Text(
@@ -97,7 +101,7 @@ class _AbaConversasState extends State<AbaConversas> {
                 itemCount: _listaConversas.length,
                 itemBuilder: (context, indice) {
                   List<DocumentSnapshot> conversas =
-                      querySnapshot!.documents.toList();
+                      querySnapshot.documents.toList();
                   DocumentSnapshot item = conversas[indice];
 
                   String urlImagem = item["caminhoFoto"];

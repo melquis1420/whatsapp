@@ -203,6 +203,9 @@ class _ConfiguracoesState extends State<Configuracoes> {
                         borderRadius: BorderRadius.circular(32)),
                     onPressed: () {
                       _atualizarNomeFirestore();
+                      Navigator.pushNamed(
+                          context,
+                        "/home");
                     },
                   ),
                 ),
